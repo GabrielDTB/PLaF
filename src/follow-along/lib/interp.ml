@@ -19,3 +19,11 @@ let rec eval_expr : expr -> int result =
         then Error "Division by zero"
         else Ok (m/n)))
   | _ -> Error "Not yet implemented"
+
+(** [eval_prog e] evaluates program [e] *)
+let eval_prog (AProg(_,e)) =
+  eval_expr e
+
+(** [interp s] parses [s] and then evaluates it *)
+let interp (e:string) : int result =
+  e |> parse |> eval_prog
