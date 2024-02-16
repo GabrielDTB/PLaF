@@ -1,0 +1,19 @@
+
+
+
+(library
+ (name follow_along)        ; name of the opam library
+ (libraries parser_plaf)
+ (public_name follow_along) ; required for generating documentation
+                    ; also requires sool.opam in root of workspace
+ (synopsis "Follow along for the textbook")
+ ;; (wrapped      false) ; true by default
+ )
+
+; the next line avoids warnings from stopping the build
+
+(env
+ (dev
+  (flags
+   (:standard -warn-error -A))))
+
