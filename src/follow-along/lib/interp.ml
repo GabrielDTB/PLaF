@@ -5,19 +5,18 @@ open Parser_plaf.Parser
 let rec eval_expr : expr -> int result =
   fun e ->
   match e with
-  | Int(n) -> Ok n
-  | Sub(e1, e2) -> (match eval_expr e1 with
-    | Error s -> Error s
-    | Ok m -> (match eval_expr e2 with
-      | Error s -> Error s
-      | Ok n -> Ok (m-n)))
-  | Div(e1, e2) -> (match eval_expr e1 with
-    | Error s -> Error s
-    | Ok m -> (match eval_expr e2 with
-      | Error s -> Error s
-      | Ok n -> if n == 0
-        then Error "Division by zero"
-        else Ok (m/n)))
+  | Int(n) ->
+    return n
+  | Sub(e1, e2) ->
+    eval_expr e1 >>= fun a1 ->
+    eval_expr e2 >>= fun a2 ->
+    return (a1 - a2)
+  | Div(e1, e2) ->
+    eval_expr e1 >>= fun a1 ->
+    eval_expr e2 >>= fun a2 ->
+    if a2 == 0
+    then error "Division by zero"
+    else return (a1 / a2)
   | _ -> Error "Not yet implemented"
 
 (** [eval_prog e] evaluates program [e] *)
