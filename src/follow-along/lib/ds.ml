@@ -18,6 +18,18 @@ type exp_val =
   | NumVal of int
   | BoolVal of bool
 
+let int_of_numVal : exp_val -> int result =
+  fun ev ->
+  match ev with
+  | NumVal n -> return n
+  | _ -> error "Expected a number!"
+
+let bool_of_boolVal : exp_val -> bool result =
+  fun ev ->
+  match ev with
+  | BoolVal b -> return b
+  | _ -> error "Expected a boolean!"
+
 type env =
   | EmptyEnv
   | ExtendEnv of string*exp_val*env
