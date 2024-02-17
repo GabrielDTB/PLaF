@@ -13,3 +13,7 @@ let (>>=) : 'a result -> ('a -> 'b result) -> 'b result =
   match c with
   | Error s -> Error s
   | Ok v -> f v
+
+type exp_val =
+  | NumVal of int
+  | BoolVal of bool
