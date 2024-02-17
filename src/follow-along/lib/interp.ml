@@ -22,6 +22,12 @@ let rec eval_expr : expr -> int result =
     if a < 0
     then return (-a)
     else return a
+  | Min(e1, e2) ->
+    eval_expr e1 >>= fun a1 ->
+    eval_expr e2 >>= fun a2 ->
+    if a1 <= a2
+    then return a1
+    else return a2
   | _ -> Error "Not yet implemented"
 
 (** [eval_prog e] evaluates program [e] *)
