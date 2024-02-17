@@ -2,15 +2,17 @@ open Ds
 open Parser_plaf.Ast
 open Parser_plaf.Parser
     
-let rec eval_expr : expr -> int result =
-  fun e ->
+let rec eval_expr : expr -> env -> exp_val result =
+  fun e en ->
   match e with
-  | Int(n) ->
-    return n
+  | Int(n) -> return (NumVal n)
   | Sub(e1, e2) ->
-    eval_expr e1 >>= fun a1 ->
-    eval_expr e2 >>= fun a2 ->
-    return (a1 - a2)
+    eval_expr e1 en >>=
+    int_of_numVal >>= fun n1 ->
+    eval_expr e2 en >>=
+    int_of_numVal >>= fun n2 ->
+    return (NumVal (n1 - n2))
+  (*
   | Div(e1, e2) ->
     eval_expr e1 >>= fun a1 ->
     eval_expr e2 >>= fun a2 ->
@@ -28,12 +30,12 @@ let rec eval_expr : expr -> int result =
     if a1 <= a2
     then return a1
     else return a2
-  | _ -> Error "Not yet implemented"
+  *)
+  | _ -> failwith "Not implemented yet!"
 
-(** [eval_prog e] evaluates program [e] *)
 let eval_prog (AProg(_,e)) =
   eval_expr e
 
-(** [interp s] parses [s] and then evaluates it *)
-let interp (e:string) : int result =
-  e |> parse |> eval_prog
+let interp (s:string) : exp_val result =
+  let c = s |> parse |> eval_prog
+  in c EmptyEnv
