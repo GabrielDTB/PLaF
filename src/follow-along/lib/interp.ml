@@ -17,6 +17,11 @@ let rec eval_expr : expr -> int result =
     if a2 == 0
     then error "Division by zero"
     else return (a1 / a2)
+  | Abs(e1) ->
+    eval_expr e1 >>= fun a ->
+    if a < 0
+    then return (-a)
+    else return a
   | _ -> Error "Not yet implemented"
 
 (** [eval_prog e] evaluates program [e] *)
