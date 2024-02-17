@@ -6,6 +6,7 @@ let rec eval_expr : expr -> env -> exp_val result =
   fun e en ->
   match e with
   | Int(n) -> return (NumVal n)
+  | Var(id) -> apply_env id en
   | Sub(e1, e2) ->
     eval_expr e1 en >>=
     int_of_numVal >>= fun n1 ->
@@ -31,6 +32,19 @@ let rec eval_expr : expr -> env -> exp_val result =
     then return a1
     else return a2
   *)
+  | IsZero(e) ->
+    eval_expr e en >>=
+    int_of_numVal >>= fun n ->
+    return (BoolVal (n = 0))
+  | ITE(e1, e2, e3) ->
+    eval_expr e1 en >>=
+    bool_of_boolVal >>= fun b ->
+    if b
+    then eval_expr e2 en
+    else eval_expr e3 en
+  | Let(id, def, body) ->
+    eval_expr def en >>= fun ev ->
+    eval_expr body (extend_env en id ev)
   | _ -> failwith "Not implemented yet!"
 
 let eval_prog (AProg(_,e)) =
