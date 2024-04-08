@@ -1,0 +1,41 @@
+(* Example 1 *)
+
+let n_left = { data <= 12; left <= 0; right <= 0}
+in let n_right = { data <= 44; left <= 0; right <= 0}
+in let n_root = { data <= 33; left <= n_left; right <= n_right }
+in let t1 = { root <= n_root; length <= 3 }
+in letrec add_tree_helper (nd) =
+	proc (key) {
+		if number?(nd) then (
+			{ data <= key; left <= 0; right <= 0 }
+		)
+		else if (nd.data = key) then (
+			0
+		)
+		else if (nd.data >> key) then (
+			if number?(nd) then (
+				nd.left <= { data <= key; left <= 0; right <= 0 }
+			)
+			else (
+				(add_tree_helper nd.left) key
+			)
+		)
+		else (
+			if number?(nd) then (
+				nd.right <= { data <= key; left <= 0; right <= 0 }
+			)
+			else (
+				(add_tree_helper nd.right) key
+			)
+		)
+	}
+in let add_tree = proc (t) {
+	proc (key) {
+		((add_tree_helper t.root) key)
+	}
+}
+in begin
+	((add_tree t1) 23);
+	t1.length <= t1.length+1;
+	debug(t1)
+end
