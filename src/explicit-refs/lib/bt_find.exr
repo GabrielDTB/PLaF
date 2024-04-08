@@ -1,5 +1,3 @@
-(* Example 1 *)
-
 let n_left = { data <= 12; left <= 0; right <= 0}
 in let n_right = { data <= 44; left <= 0; right <= 0}
 in let n_root = { data <= 33; left <= n_left; right <= n_right }

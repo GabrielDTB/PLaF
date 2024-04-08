@@ -1,5 +1,3 @@
-(* Example 1 *)
-
 let n_left = { data <= 12; left <= 0; right <= 0}
 in let n_right = { data <= 44; left <= 0; right <= 0}
 in let n_root = { data <= 33; left <= n_left; right <= n_right }
@@ -13,7 +11,7 @@ in letrec add_tree_helper (nd) =
 			0
 		)
 		else if (nd.data >> key) then (
-			if number?(nd) then (
+			if number?(nd.left) then (
 				nd.left <= { data <= key; left <= 0; right <= 0 }
 			)
 			else (
@@ -21,7 +19,7 @@ in letrec add_tree_helper (nd) =
 			)
 		)
 		else (
-			if number?(nd) then (
+			if number?(nd.right) then (
 				nd.right <= { data <= key; left <= 0; right <= 0 }
 			)
 			else (

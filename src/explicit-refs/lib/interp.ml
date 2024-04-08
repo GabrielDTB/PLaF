@@ -1,3 +1,8 @@
+(*
+  Gabriel Talbert Bunt
+  I pledge my honor that I have abided by the Stevens Honor System.
+*)
+
 open Ds
 open Parser_plaf.Ast
 open Parser_plaf.Parser
@@ -23,8 +28,8 @@ let rec proj_helper target_id fs =
 let rec set_field_helper fs target_id ev =
   match fs with
   | [] -> error "Field not found"
-  | (id,(mut,value))::_ when id = target_id ->
-    if mut
+  | (id,(is_mutable,value))::_ when id = target_id ->
+    if is_mutable
       then int_of_refVal value >>= fun loc -> Store.set_ref g_store loc ev
       else error "Field not mutable"
   | _::t -> set_field_helper t target_id ev
