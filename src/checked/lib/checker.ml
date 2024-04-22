@@ -56,6 +56,103 @@ declaration")
     string_of_tenv >>= fun str ->
     print_endline str;
     error "Debug: reached breakpoint"
+  | NewRef(e) -> 
+    chk_expr e >>= fun t ->
+    return (RefType t)
+  | DeRef(e) ->
+    chk_expr e >>= fun t1 ->
+    (
+      match t1 with
+      | RefType(t2) -> return t2
+      | _ -> error "deref: expected argument of type ref"
+    )
+  | SetRef(e1, e2) ->
+    chk_expr e1 >>= fun t1 ->
+    chk_expr e2 >>= fun _ ->
+    (
+      match t1 with
+      | RefType(_) -> return UnitType
+      | _ -> error "setref: expected a reference type"
+    )
+  | BeginEnd([]) ->
+    return UnitType
+  | BeginEnd(es) ->
+    let rec process = fun l -> (
+      match l with
+      | h::[] -> chk_expr h
+      | h::t -> chk_expr h >>= fun _ -> process t
+    )
+    in
+    (process es) >>= fun t1 ->
+    return t1
+  | EmptyList(t) ->
+    (
+      match t with
+      | Some(thing) -> return (ListType thing)
+      | _ -> error "list constructor expected a type"
+    )
+  | Cons(e1, e2) ->
+    chk_expr e1 >>= fun t1 ->
+    chk_expr e2 >>= fun t2 ->
+    (
+      match t2 with
+      | ListType(t3) -> if (t1=t3) then return (t2) else (error "cons expected types that match")
+      | _ -> error "cons expected second argument to be a list"
+    )
+  | IsEmpty(e) ->
+    chk_expr e >>= fun t1 ->
+    (
+      match t1 with
+      | TreeType(_) | ListType(_) -> return (BoolType)
+      | _ -> error "isempty expected list or tree"
+    )
+  | Hd(e) ->
+    chk_expr e >>= fun t1 ->
+    (
+      match t1 with
+      | ListType(t2) -> return t2
+      | _ -> error "hd expected a list"
+    )
+  | Tl(e) ->
+    chk_expr e >>= fun t1 -> 
+    (
+      match t1 with
+      | ListType(_) -> return t1
+      | _ -> error "tl expected a list"
+    )
+  | EmptyTree(t) ->
+    (
+      match t with
+      | Some(thing) -> return (TreeType thing)
+      | _ -> error "tree expected a type"
+    )
+  | Node(de, le, re) ->
+    chk_expr de >>= fun t1 ->
+    chk_expr le >>= fun t2 ->
+    chk_expr re >>= fun t3 ->
+    (
+      match t2 with
+      | TreeType(t4) -> (
+        match t3 with
+        | TreeType(t5) -> if (t1=t4 && t1=t5) then return (TreeType t1) else error "mismatched types"
+        | _ -> error "expected a tree"
+      )
+      | _ -> error "expected a tree"
+    )
+  | CaseT(target,emptycase,id1,id2,id3,nodecase) ->
+    chk_expr target >>= fun t1 ->
+    chk_expr emptycase >>= fun t2 ->
+    (
+      match t1 with
+      | TreeType(t4) -> (
+        extend_tenv id1 t4 >>+
+        extend_tenv id2 (TreeType t4) >>+
+        extend_tenv id3 (TreeType t4) >>+
+        chk_expr nodecase >>= fun t3 ->
+        if (t2=t3) then (return t2) else (error "case types don't match")
+      )
+      | _ -> error "expected a tree"
+    )
   | _ -> failwith "chk_expr: implement"    
 and
   chk_prog (AProg(_,e)) =
